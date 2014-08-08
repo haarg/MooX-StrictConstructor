@@ -17,42 +17,30 @@ L<MooseX::StrictConstructor>.
 =cut
 
 use Moo::Role;
-use B ();
 
-#
-# The gist of this code was copied directly from Dave Rolsky's (DROLSKY)
-# MooseX::StrictConstructor, specifically from
-# MooseX::StrictConstructor::Trait::Method::Constructor as a modifier around
-# _generate_BUILDALL.  It has diverged only slightly to handle Moo-specific
-# differences.
-#
-around _assign_new => sub {
-    my $orig = shift;
-    my $self = shift;
-    my $spec = $_[0];
+has _buildall_generator => ( is => 'rw' );
 
-    my @attrs = map { B::perlstring($_) . ' => undef,' }
-        grep {defined}
-        map  { $_->{init_arg} }    ## no critic (ProhibitAccessOfPrivateData)
-        values(%$spec);
+around buildall_generator => sub {
+  my ($orig, $self, @args) = @_;
+  my $gen = $self->_buildall_generator;
+  return $gen
+    if $gen;
+  $gen = Moo::Role->apply_roles_to_object($self->$orig(@args),
+    'Method::Generate::BuildAll::Role::StrictConstructor'
+  );
+  $gen->_constructor_generator($self);
+  return $self->_buildall_generator($gen);
+};
 
-    my $state = ($] >= 5.010) ? "use feature 'state'; state" : "my";
+*_fake_BUILD = *Method::Generate::BuildAll::Role::StrictConstructor::_fake_BUILD;
 
-    my $body .= <<"EOF";
-
-    # MooX::StrictConstructor
-    $state \$attrs = { @attrs };
-    my \@bad = sort grep { ! exists \$attrs->{\$_} }  keys \%{ \$args };
-    if (\@bad) {
-       Carp::confess("Found unknown attribute(s) passed to the constructor: " .
-           join ", ", \@bad);
-    }
-
-EOF
-
-    $body .= $self->$orig(@_);
-
-    return $body;
+around generate_method => sub {
+  my ($orig, $self, $into, @args) = @_;
+  no strict 'refs'; ## no critic
+  # this ensures BuildAll generation will always be done, but allows us to
+  # identify when the BUILD calls aren't needed.
+  local *{"${into}::BUILD"} = \&_fake_BUILD if !$into->can('BUILD');
+  $self->$orig($into, @args);
 };
 
 =head1 SEE ALSO

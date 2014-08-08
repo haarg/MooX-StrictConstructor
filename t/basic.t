@@ -147,12 +147,9 @@ like(
     q{strict subclass from parent that doesn't use strict correctly recognizes bad attribute}
 );
 
-TODO: {
-    local $TODO = "Moose trick.  Doesn't work 'cuz my code runs before object built.";
-    is( exception { Tricky->new( thing => 1, spy => 99 ) },
-        undef,
-        'can work around strict constructor by deleting params in BUILD()' );
-}
+is( exception { Tricky->new( thing => 1, spy => 99 ) },
+    undef,
+    'can work around strict constructor by deleting params in BUILD()' );
 
 is( exception { TrickyBuildArgs->new( thing => 1, spy => 99 ) },
     undef,

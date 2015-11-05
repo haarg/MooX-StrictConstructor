@@ -122,11 +122,11 @@ BUILD subs are run after the objects has been built.
 =head2 Interactions with namespace::clean
 
 L<MooX::StrictConstructor> creates a C<new> method that L<namespace::clean>
-will over-zealously clean.  Workarounds include using
-L<MooX::StrictConstructor> B<after> L<namespace::autoclean> or telling
+will over-zealously clean.  Workarounds include using L<namespace::autoclean>,
+using L<MooX::StrictConstructor> B<after> L<namespace::clean> or telling
 L<namespace::clean> to ignore C<new> with something like:
 
-  use namespace::clean -except => ['new','meta'];
+  use namespace::clean -except => ['new'];
 
 =head1 SEE ALSO
 

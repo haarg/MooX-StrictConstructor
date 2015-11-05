@@ -87,8 +87,8 @@ sub _apply_role {
 
 =head2 Inheritance
 
-A class that uses L<MooX::StrictConstructor> but extends another class that
-does not will not be handled properly.  This code hooks into the constructor
+A class that uses L<MooX::StrictConstructor> but extends a non-Moo class will
+not will not be handled properly.  This code hooks into the constructor
 as it is being strung up (literally) and that happens in the parent class,
 not the one using strict.
 
@@ -96,13 +96,6 @@ A class that inherits from a L<Moose> based class will discover that the
 L<Moose> class's attributes are disallowed.  Given sufficient L<Moose> meta
 knowledge it might be possible to work around this.  I'd appreciate pull
 requests and or an outline of a solution.
-
-=head2 Subverting strictness
-
-L<MooseX::StrictConstructor> documents a trick
-for subverting strictness using BUILD.  This does not work here because
-strictness is enforced in the early stage of object construction but the
-BUILD subs are run after the objects has been built.
 
 =head2 Interactions with namespace::clean
 

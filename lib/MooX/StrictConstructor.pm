@@ -6,9 +6,9 @@ our $VERSION = '0.013';
 
 use Moo ();
 use Moo::Role ();
+use Role::Tiny ();
+use Moo::_Utils ();
 use Carp ();
-
-use Class::Method::Modifiers qw(install_modifier);
 
 use constant
     _CON_ROLE => 'Method::Generate::Constructor::Role::StrictConstructor';
@@ -27,7 +27,7 @@ sub import {
 
     _apply_role($target);
 
-    install_modifier($target, 'after', 'extends', sub {
+    Moo::_Utils::_install_modifier($target, 'after', 'extends', sub {  ## no critic (Subroutines::ProtectPrivateSubs)
         _apply_role($target);
     });
 }

@@ -102,10 +102,10 @@ code runs before the object is constructed the C<BUILD> trick will not work.
 
 =head2 Inheritance
 
-A class that uses L<MooX::StrictConstructor> but extends another class that
-does not will not be handled properly.  This code hooks into the constructor
-as it is being strung up (literally) and that happens in the parent class,
-not the one using strict.
+A class that uses L<MooX::StrictConstructor> but extends a non-Moo class will
+not be handled properly.  This code hooks into the constructor as it is being
+strung up (literally) and that happens in the parent class, not the one using
+strict.
 
 A class that inherits from a L<Moose> based class will discover that the
 L<Moose> class's attributes are disallowed.  Given sufficient L<Moose> meta

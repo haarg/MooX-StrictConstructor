@@ -51,12 +51,10 @@ code runs before the object is constructed the C<BUILD> trick will not work.
 
 =cut
 
-use Moo 1.001000 ();    # $Moo::MAKERS support
+use strictures 2;
+use Moo 1.004000 (); # buildall_generator
 use Moo::Role ();
-
-use Class::Method::Modifiers qw(install_modifier);
-
-use strictures 1;
+use Carp 'croak';
 
 use constant
     CON_ROLE => 'Method::Generate::Constructor::Role::StrictConstructor';
@@ -69,22 +67,20 @@ use constant
 sub import {
     my $class  = shift;
     my $target = caller;
-    unless ( $Moo::MAKERS{$target} && $Moo::MAKERS{$target}{is_class} ) {
-        die "MooX::StrictConstructor can only be used on Moo classes.";
-    }
 
     _apply_role($target);
 
-    install_modifier($target, 'after', 'extends', sub {
+    $target->can('after')->('extends', sub {
         _apply_role($target);
     });
 }
 
 sub _apply_role {
-    my $target = shift;
-    my $con = Moo->_constructor_maker_for($target);
+    my ($target) = @_;
+    my $con = Moo->_constructor_maker_for($target)
+        or croak "MooX::StrictConstructor can only be used on Moo classes.";
     Moo::Role->apply_roles_to_object($con, CON_ROLE)
-        unless Role::Tiny::does_role($con, CON_ROLE);
+        unless $con->does(CON_ROLE);
 }
 
 =head1 BUGS/ODDITIES

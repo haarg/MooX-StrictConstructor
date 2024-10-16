@@ -58,7 +58,6 @@ max_mccabe = 30
 [Subroutines::ProhibitNestedSubs]
 [Subroutines::ProhibitReturnSort]
 [Subroutines::ProhibitSubroutinePrototypes]
-[Subroutines::ProhibitUnusedPrivateSubroutines]
 [Subroutines::ProtectPrivateSubs]
 [TestingAndDebugging::ProhibitProlongedStrictureOverride]
 [TestingAndDebugging::RequireTestLabels]

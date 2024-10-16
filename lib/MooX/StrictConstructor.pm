@@ -6,37 +6,39 @@ our $VERSION = '0.013';
 
 use Moo ();
 use Moo::Role ();
-use Role::Tiny ();
-use Moo::_Utils ();
+use Moo::_Utils qw(_install_modifier);
 use Carp ();
 
-use constant
-    _CON_ROLE => 'MooX::StrictConstructor::Role::Constructor';
-
-#
-# The gist of this code was copied directly from Graham Knop (HAARG)'s
-# MooX::InsideOut, specifically its import sub.  It has diverged a bit to
-# handle goal specific differences.
-#
 sub import {
     my $class  = shift;
     my $target = caller;
+    my $late;
+    for my $arg (@_) {
+        if ($arg eq '-late') {
+            $late = 1;
+        }
+        else {
+            Carp::croak("Unknown option $arg");
+        }
+    }
     unless ( Moo->is_class($target) ) {
         Carp::croak("MooX::StrictConstructor can only be used on Moo classes.");
     }
 
-    _apply_role($target);
+    _apply_role($target, $late);
 
-    Moo::_Utils::_install_modifier($target, 'after', 'extends', sub {  ## no critic (Subroutines::ProtectPrivateSubs)
-        _apply_role($target);
+    _install_modifier($target, 'after', 'extends', sub {
+        _apply_role($target, $late);
     });
 }
 
 sub _apply_role {
-    my $target = shift;
+    my ($target, $late) = @_;
     my $con = Moo->_constructor_maker_for($target); ## no critic (Subroutines::ProtectPrivateSubs)
-    Moo::Role->apply_roles_to_object($con, _CON_ROLE)
-        unless Role::Tiny::does_role($con, _CON_ROLE);
+    my $role = $late ? 'MooX::StrictConstructor::Role::Constructor::Late'
+                     : 'MooX::StrictConstructor::Role::Constructor';
+    Moo::Role->apply_roles_to_object($con, $role)
+        unless Moo::Role::does_role($con, $role);
 }
 
 1;
@@ -53,7 +55,7 @@ MooX::StrictConstructor - Make your Moo-based object constructors blow up on unk
     use Moo;
     use MooX::StrictConstructor;
 
-    has 'size' => ( is => 'rw');
+    has 'size' => ( is => 'rw' );
 
     # then somewhere else, when constructing a new instance
     # of My::Class ...
@@ -69,18 +71,17 @@ declare, then it dies. This is a great way to catch small typos.
 
 =head2 STANDING ON THE SHOULDERS OF ...
 
-Most of this package was lifted from L<MooX::InsideOut> and most of the Role
-that implements the strictness was lifted from L<MooseX::StrictConstructor>.
+This module was inspired by L<MooseX::StrictConstructor>, and includes some
+implementation details taken from it.
 
 =head2 SUBVERTING STRICTNESS
 
-L<MooseX::StrictConstructor> documents two tricks for subverting strictness and
-avoid having problematic arguments cause an exception: handling them in BUILD
-or handle them in C<BUILDARGS>.
+There are two options for subverting the strictness to handle problematic
+arguments. They can be handled in C<BUILDARGS> or in C<BUILD>.
 
-In L<MooX::StrictConstructor> you can use a C<BUILDARGS> function to handle
-them, e.g. this will allow you to pass in a parameter called "spy" without
-raising an exception.  Useful?  Only you can tell.
+You can use a C<BUILDARGS> function to handle them, e.g. this will allow you
+to pass in a parameter called "spy" without raising an exception.  Useful?
+Only you can tell.
 
    sub BUILDARGS {
        my ($self, %params) = @_;
@@ -89,8 +90,21 @@ raising an exception.  Useful?  Only you can tell.
        return \%params;
    }
 
-Because C<BUILD> methods are run after an object has been constructed and this
-code runs before the object is constructed the C<BUILD> trick will not work.
+It is also possible to handle extra parameters in C<BUILD>. This requires
+the strictness check to be performed at the end of object construction rather
+than at the beginning.
+
+    use MooX::StrictConstuctor -late;
+
+    sub BUILD {
+        my ($self, $params) = @_;
+        if ( my $spy = delete $params->{spy} ) {
+            # do something useful
+        }
+    }
+
+When using this option, the object will be fully constructed before checking
+the parameters, and a failure will cause the destructor to be run.
 
 =head1 BUGS/ODDITIES
 
@@ -106,13 +120,6 @@ L<Moose> class's attributes are disallowed.  Given sufficient L<Moose> meta
 knowledge it might be possible to work around this.  I'd appreciate pull
 requests and or an outline of a solution.
 
-=head2 Subverting strictness
-
-L<MooseX::StrictConstructor> documents a trick
-for subverting strictness using BUILD.  This does not work here because
-strictness is enforced in the early stage of object construction but the
-BUILD subs are run after the objects has been built.
-
 =head2 Interactions with namespace::clean
 
 L<MooX::StrictConstructor> creates a C<new> method that L<namespace::clean>
@@ -125,10 +132,6 @@ L<namespace::clean> to ignore C<new> with something like:
 =head1 SEE ALSO
 
 =over 4
-
-=item *
-
-L<MooX::InsideOut>
 
 =item *
 

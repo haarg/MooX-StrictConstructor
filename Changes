@@ -1,6 +1,9 @@
 Revision history for MooX-StrictConstructor
 
 {{ $NEXT }}
+  - drop strictures prerequisite
+  - minor Pod cleanups
+  - revise Dist::Zilla packaging
 
 0.011   2020-03-10
   - Switched from Carp::confess to die in order to avoid leaking

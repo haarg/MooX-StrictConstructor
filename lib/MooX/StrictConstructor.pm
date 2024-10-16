@@ -40,11 +40,11 @@ that implements the strictness was lifted from L<MooseX::StrictConstructor>.
 
 L<MooseX::StrictConstructor> documents two tricks for subverting strictness and
 avoid having problematic arguments cause an exception: handling them in BUILD
-or handle them in BUILDARGS.
+or handle them in C<BUILDARGS>.
 
-In L<MooX::StrictConstructor> you can use a BUILDARGS function to handle them,
-e.g. this will allow you to pass in a parameter called "spy" without raising an
-exception.  Useful?  Only you can tell.
+In L<MooX::StrictConstructor> you can use a C<BUILDARGS> function to handle
+them, e.g. this will allow you to pass in a parameter called "spy" without
+raising an exception.  Useful?  Only you can tell.
 
    sub BUILDARGS {
        my ($self, %params) = @_;

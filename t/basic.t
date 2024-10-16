@@ -194,4 +194,9 @@ unlike( exception{ InTrace->be_strict },
     'Stack traces are not dumped by default'
 );
 
+like( exception{ InTrace->be_strict },
+    qr/\Q${\__FILE__}\E/,
+    'Stack traces reference caller file'
+);
+
 done_testing();

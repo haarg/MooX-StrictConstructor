@@ -32,8 +32,9 @@ around _assign_new => sub {
     $state \$attrs = { @attrs };
     my \@bad = sort grep { ! exists \$attrs->{\$_} }  keys \%{ \$args };
     if (\@bad) {
-       die("Found unknown attribute(s) passed to the constructor: " .
-           join ", ", \@bad);
+        require Carp;
+        Carp::croak("Found unknown attribute(s) passed to the constructor: " .
+            join ", ", \@bad);
     }
 
 EOF

@@ -1,6 +1,6 @@
 Revision history for MooX-StrictConstructor
 
-{{ $NEXT }}
+0.012   2024-10-16
   - drop strictures prerequisite
   - minor Pod cleanups
   - revise Dist::Zilla packaging

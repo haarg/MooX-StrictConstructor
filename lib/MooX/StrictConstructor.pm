@@ -60,11 +60,12 @@ code runs before the object is constructed the C<BUILD> trick will not work.
 
 use Moo 1.001000 ();    # $Moo::MAKERS support
 use Moo::Role ();
+use Carp ();
 
 use Class::Method::Modifiers qw(install_modifier);
 
 use constant
-    CON_ROLE => 'Method::Generate::Constructor::Role::StrictConstructor';
+    _CON_ROLE => 'Method::Generate::Constructor::Role::StrictConstructor';
 
 #
 # The gist of this code was copied directly from Graham Knop (HAARG)'s
@@ -75,7 +76,7 @@ sub import {
     my $class  = shift;
     my $target = caller;
     unless ( $Moo::MAKERS{$target} && $Moo::MAKERS{$target}{is_class} ) {
-        die "MooX::StrictConstructor can only be used on Moo classes.";
+        Carp::croak("MooX::StrictConstructor can only be used on Moo classes.");
     }
 
     _apply_role($target);
@@ -88,8 +89,8 @@ sub import {
 sub _apply_role {
     my $target = shift;
     my $con = Moo->_constructor_maker_for($target);
-    Moo::Role->apply_roles_to_object($con, CON_ROLE)
-        unless Role::Tiny::does_role($con, CON_ROLE);
+    Moo::Role->apply_roles_to_object($con, _CON_ROLE)
+        unless Role::Tiny::does_role($con, _CON_ROLE);
 }
 
 =head1 BUGS/ODDITIES

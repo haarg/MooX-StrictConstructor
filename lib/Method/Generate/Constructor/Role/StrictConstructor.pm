@@ -38,7 +38,7 @@ around _assign_new => sub {
 
     my $state = ($] >= 5.010) ? "use feature 'state'; state" : "my";
 
-    my $body .= <<"EOF";
+    my $body = <<"EOF";
 
     # MooX::StrictConstructor
     $state \$attrs = { @attrs };

@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package MooX::StrictConstructor;
 
-our $VERSION = '0.012';
+our $VERSION = '0.013';
 
 use Moo ();
 use Moo::Role ();

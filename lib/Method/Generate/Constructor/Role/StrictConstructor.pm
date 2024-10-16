@@ -2,7 +2,7 @@ use strict;                     # redundant, but quiets perlcritic
 use warnings;
 package Method::Generate::Constructor::Role::StrictConstructor;
 
-our $VERSION = '0.012';
+our $VERSION = '0.013';
 
 use Moo::Role;
 use B ();

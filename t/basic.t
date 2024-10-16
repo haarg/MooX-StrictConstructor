@@ -26,6 +26,9 @@ use Test::More 0.88;
     use MooX::StrictConstructor;
 
     has 'thing' => ( is => 'rw' );
+
+    our $DESTROY;
+    sub DEMOLISH { $DESTROY++ }
 }
 
 {
@@ -118,11 +121,14 @@ use Test::More 0.88;
 is( exception { Standard->new( thing => 1, bad => 99 ) },
     undef, 'standard Moo class ignores unknown params' );
 
+$Stricter::DEMOLISH = 0;
 like(
     exception { Stricter->new( thing => 1, bad => 99 ) },
     qr/unknown attribute.+: bad/,
     'strict constructor blows up on unknown params'
 );
+
+is $Stricter::DEMOLISH, 0, 'Object destructor not called';
 
 is( exception { Subclass->new( thing => 1, size => 'large' ) },
     undef, 'subclass constructor handles known attributes correctly' );

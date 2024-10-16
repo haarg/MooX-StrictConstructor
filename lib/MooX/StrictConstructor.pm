@@ -11,7 +11,7 @@ use Moo::_Utils ();
 use Carp ();
 
 use constant
-    _CON_ROLE => 'Method::Generate::Constructor::Role::StrictConstructor';
+    _CON_ROLE => 'MooX::StrictConstructor::Role::Constructor';
 
 #
 # The gist of this code was copied directly from Graham Knop (HAARG)'s

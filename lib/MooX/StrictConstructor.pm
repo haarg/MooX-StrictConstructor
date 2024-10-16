@@ -1,8 +1,50 @@
-use strict;                     # redundant, but quiets perlcritic
+use strict;
 use warnings;
 package MooX::StrictConstructor;
 
-# ABSTRACT: Make your Moo-based object constructors blow up on unknown attributes.
+our $VERSION = '0.012';
+
+use Moo ();
+use Moo::Role ();
+use Carp ();
+
+use Class::Method::Modifiers qw(install_modifier);
+
+use constant
+    _CON_ROLE => 'Method::Generate::Constructor::Role::StrictConstructor';
+
+#
+# The gist of this code was copied directly from Graham Knop (HAARG)'s
+# MooX::InsideOut, specifically its import sub.  It has diverged a bit to
+# handle goal specific differences.
+#
+sub import {
+    my $class  = shift;
+    my $target = caller;
+    unless ( $Moo::MAKERS{$target} && $Moo::MAKERS{$target}{is_class} ) {
+        Carp::croak("MooX::StrictConstructor can only be used on Moo classes.");
+    }
+
+    _apply_role($target);
+
+    install_modifier($target, 'after', 'extends', sub {
+        _apply_role($target);
+    });
+}
+
+sub _apply_role {
+    my $target = shift;
+    my $con = Moo->_constructor_maker_for($target); ## no critic (Subroutines::ProtectPrivateSubs)
+    Moo::Role->apply_roles_to_object($con, _CON_ROLE)
+        unless Role::Tiny::does_role($con, _CON_ROLE);
+}
+
+1;
+__END__
+
+=head1 NAME
+
+MooX::StrictConstructor - Make your Moo-based object constructors blow up on unknown attributes
 
 =head1 SYNOPSIS
 
@@ -56,43 +98,6 @@ raising an exception.  Useful?  Only you can tell.
 Because C<BUILD> methods are run after an object has been constructed and this
 code runs before the object is constructed the C<BUILD> trick will not work.
 
-=cut
-
-use Moo 1.001000 ();    # $Moo::MAKERS support
-use Moo::Role ();
-use Carp ();
-
-use Class::Method::Modifiers qw(install_modifier);
-
-use constant
-    _CON_ROLE => 'Method::Generate::Constructor::Role::StrictConstructor';
-
-#
-# The gist of this code was copied directly from Graham Knop (HAARG)'s
-# MooX::InsideOut, specifically its import sub.  It has diverged a bit to
-# handle goal specific differences.
-#
-sub import {
-    my $class  = shift;
-    my $target = caller;
-    unless ( $Moo::MAKERS{$target} && $Moo::MAKERS{$target}{is_class} ) {
-        Carp::croak("MooX::StrictConstructor can only be used on Moo classes.");
-    }
-
-    _apply_role($target);
-
-    install_modifier($target, 'after', 'extends', sub {
-        _apply_role($target);
-    });
-}
-
-sub _apply_role {
-    my $target = shift;
-    my $con = Moo->_constructor_maker_for($target);
-    Moo::Role->apply_roles_to_object($con, _CON_ROLE)
-        unless Role::Tiny::does_role($con, _CON_ROLE);
-}
-
 =head1 BUGS/ODDITIES
 
 =head2 Inheritance
@@ -125,10 +130,16 @@ L<namespace::clean> to ignore C<new> with something like:
 
 =head1 SEE ALSO
 
-=for :list
-* L<MooX::InsideOut>
-* L<MooseX::StrictConstructor>
+=over 4
+
+=item *
+
+L<MooX::InsideOut>
+
+=item *
+
+L<MooseX::StrictConstructor>
+
+=back
 
 =cut
-
-1;

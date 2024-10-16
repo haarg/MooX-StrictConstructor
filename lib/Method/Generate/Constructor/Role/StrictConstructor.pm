@@ -1,20 +1,8 @@
 use strict;                     # redundant, but quiets perlcritic
+use warnings;
 package Method::Generate::Constructor::Role::StrictConstructor;
 
-# ABSTRACT: a role to make Moo constructors strict.
-
-=head1 DESCRIPTION
-
-This role wraps L<Method::Generate::Constructor/_assign_new> with a bit of code
-that ensures that all arguments passed to the constructor are valid init_args
-for the class.
-
-=head2 STANDING ON THE SHOULDERS OF ...
-
-This code would not exist without the examples in L<MooX::InsideOut> and
-L<MooseX::StrictConstructor>.
-
-=cut
+our $VERSION = '0.012';
 
 use Moo::Role;
 use B ();
@@ -55,12 +43,36 @@ EOF
     return $body;
 };
 
+1;
+__END__
+
+=head1 NAME
+
+Method::Generate::Constructor::Role::StrictConstructor - a role to make Moo constructors strict
+
+=head1 DESCRIPTION
+
+This role wraps L<Method::Generate::Constructor/_assign_new> with a bit of code
+that ensures that all arguments passed to the constructor are valid init_args
+for the class.
+
+=head2 STANDING ON THE SHOULDERS OF ...
+
+This code would not exist without the examples in L<MooX::InsideOut> and
+L<MooseX::StrictConstructor>.
+
 =head1 SEE ALSO
 
-=for :list
-* L<MooX::InsideOut>
-* L<MooseX::StrictConstructor>
+=over 4
+
+=item *
+
+L<MooseX::StrictConstructor>
+
+=item *
+
+L<MooX::InsideOut>
+
+=back
 
 =cut
-
-1;

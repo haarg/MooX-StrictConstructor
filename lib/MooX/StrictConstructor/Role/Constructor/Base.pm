@@ -2,7 +2,7 @@ use strict;                     # redundant, but quiets perlcritic
 use warnings;
 package MooX::StrictConstructor::Role::Constructor::Base;
 
-our $VERSION = '0.013';
+our $VERSION = '0.014';
 
 use Moo::Role;
 

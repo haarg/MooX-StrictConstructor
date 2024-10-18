@@ -21,7 +21,7 @@ use constant
 sub import {
     my $class  = shift;
     my $target = caller;
-    unless ( $Moo::MAKERS{$target} && $Moo::MAKERS{$target}{is_class} ) {
+    unless ( Moo->is_class($target) ) {
         Carp::croak("MooX::StrictConstructor can only be used on Moo classes.");
     }
 
